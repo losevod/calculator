@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Calculator</title>
+    <script>
+        function submit() {
+            document.getElementById('calcForm').submit()
+        }
+    </script>
+</head>
+<body>
+<div class="calculator" style="border: solid; width: fit-content; padding: 5px; margin: auto; margin-top: 20px; border-radius: 15px;">
+    <h2 style="text-align:center">Калькулятор</h2>
+    <div>
+        <form method="POST" id="calcForm" th:action="@{/}" th:object="${calculator}">
+            <input type="text" style="height: 20px; width: 90%; margin-bottom: 10px"
+                   name="textValue" id="calcString" th:field="*{textValue}"/>
+        </form>
+    </div>
+    <div class="buttons" style="text-align: center">
+        <button style="margin: 5px; padding: 10px;" disabled>1</button>
+        <button style="margin: 5px; padding: 10px;" disabled>2</button>
+        <button style="margin: 5px; padding: 10px;" disabled>3</button>
+        <button style="margin: 5px; padding: 10px;" disabled>+</button>
+        <button style="margin: 5px; padding: 10px;" onclick="submit()">=</button>
+        <br>
+        <button style="margin: 5px; padding: 10px;" disabled>4</button>
+        <button style="margin: 5px; padding: 10px;" disabled>5</button>
+        <button style="margin: 5px; padding: 10px;" disabled>6</button>
+        <button style="margin: 5px; padding: 10px;" disabled>-</button>
+        <button style="margin: 5px; padding: 10px;" disabled>√</button>
+        <br>
+        <button style="margin: 5px; padding: 10px;" disabled>7</button>
+        <button style="margin: 5px; padding: 10px;" disabled>8</button>
+        <button style="margin: 5px; padding: 10px;" disabled>9</button>
+        <button style="margin: 5px; padding: 10px;" disabled>/</button>
+        <button style="margin: 5px; padding: 10px;" disabled>*</button>
+    </div>
+</div>
+</body>
+</html>
