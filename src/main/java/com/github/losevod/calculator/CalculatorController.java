@@ -6,7 +6,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.*;
 
 @Slf4j
@@ -25,12 +24,17 @@ public class CalculatorController {
         if (str.equals("")) return result;
         String token = "";
         int i = 0;
+        if (str.contains("sqrt_")) {
+            i = 5;
+            result.add("sqrt");
+        }
         if (calculator.getOperations().containsKey(str.charAt(0))) {
             token = str.charAt(0) == '-' ? "-" : "";
             i++;
         }
         for (; i < str.length(); i++) {
             char c = str.charAt(i);
+            log.info(c+"");
             if (calculator.getOperations().containsKey(c)) {
                 if (result.size() > 0) {
                     String prev = result.get(result.size() - 1);
@@ -46,28 +50,26 @@ public class CalculatorController {
                 result.add(token);
                 token = "";
             }
-            else {
-                if (calculator.getOperands().contains(c)) {
-                    token += c;
-                    if (i < str.length() - 1) {
-                        int j = i + 1;
-                        while (true) {
-                            if (str.charAt(j) != ' ') {
-                                if (str.charAt(j) == '(' || str.charAt(j) == ')' || calculator.getOperations().containsKey(str.charAt(j))) {
-                                    result.add(token);
-                                    token = "";
-                                }
-                                break;
-                            } else j++;
-                        }
+            if (calculator.getOperands().contains(c)) {
+                token += c;
+                if (i < str.length() - 1) {
+                    int j = i + 1;
+                    while (true) {
+                        if (str.charAt(j) != ' ') {
+                            if (str.charAt(j) == '(' || str.charAt(j) == ')' || calculator.getOperations().containsKey(str.charAt(j))) {
+                                result.add(token);
+                                token = "";
+                            }
+                            break;
+                        } else j++;
                     }
-                    continue;
                 }
-                if (c == '(' || c == ')') {
-                    token = String.valueOf(c);
-                    result.add(token);
-                    token = "";
-                }
+                continue;
+            }
+            if (c == '(' || c == ')') {
+                token = String.valueOf(c);
+                result.add(token);
+                token = "";
             }
         }
         if (!token.equals("")) result.add(token);
@@ -75,10 +77,11 @@ public class CalculatorController {
     }
 
     private BigDecimal doMath(List<String> list) {
-        if (list.size() < 3) return BigDecimal.valueOf(0.0);
+        if (list.size() < 2) return BigDecimal.valueOf(0.0);
         Stack<String> operands = new Stack<>();
         Stack<Character> operations = new Stack<>();
         int i = 0;
+        if (list.get(0).equals("sqrt")) i = 1;
         while (i < list.size()) {
             String token = list.get(i);
             if (token.length() > 1 || calculator.getOperands().contains(token.charAt(0))) {
@@ -156,11 +159,12 @@ public class CalculatorController {
                 }
                 operands.add(String.valueOf(localResult));
             } catch (EmptyStackException ex) {
-                log.info(operations.toString());
                 ex.printStackTrace();
             }
         }
-        return BigDecimal.valueOf(Double.parseDouble(operands.pop()));
+        double result = Double.parseDouble(operands.pop());
+        if (list.get(0).equals("sqrt")) return BigDecimal.valueOf(Math.sqrt(result));
+        return BigDecimal.valueOf(result);
     }
 
     public void calculate(String str) {
