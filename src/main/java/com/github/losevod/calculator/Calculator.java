@@ -11,12 +11,14 @@ import java.util.Map;
 @Component
 public class Calculator {
     public Calculator() {
+
         operations = new HashMap<>();
         operations.put('+', 1);
         operations.put('-', 1);
         operations.put('*', 2);
         operations.put('/', 2);
         operations.put('√', 3);
+
         operands = new ArrayList<>();
         operands.add('0');
         operands.add('1');
@@ -29,6 +31,7 @@ public class Calculator {
         operands.add('8');
         operands.add('9');
         operands.add('.');
+
     }
     private String textValue;
     public String getTextValue() {
@@ -36,13 +39,6 @@ public class Calculator {
     }
     public void setTextValue(String textValue) {
         this.textValue = textValue;
-    }
-    private BigDecimal result;
-    public BigDecimal getResult() {
-        return result;
-    }
-    public void setResult(BigDecimal result) {
-        this.result = result;
     }
     private final Map<Character, Integer> operations;
     public Map<Character, Integer> getOperations() {

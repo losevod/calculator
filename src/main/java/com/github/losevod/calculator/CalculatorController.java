@@ -13,7 +13,7 @@ import java.util.*;
 @RequestMapping("/")
 @SessionAttributes("calculator")
 public class CalculatorController {
-    private Calculator calculator;
+    private final Calculator calculator;
 
     public CalculatorController(Calculator calculator) {
         this.calculator = calculator;
@@ -34,7 +34,6 @@ public class CalculatorController {
         }
         for (; i < str.length(); i++) {
             char c = str.charAt(i);
-            log.info(c+"");
             if (calculator.getOperations().containsKey(c)) {
                 if (result.size() > 0) {
                     String prev = result.get(result.size() - 1);
@@ -51,7 +50,7 @@ public class CalculatorController {
                 token = "";
             }
             if (calculator.getOperands().contains(c)) {
-                token += c;
+                token = token.concat(String.valueOf(c));
                 if (i < str.length() - 1) {
                     int j = i + 1;
                     while (true) {
@@ -103,16 +102,10 @@ public class CalculatorController {
                 if (calculator.getOperations().get(operations.peek()) >= calculator.getOperations().get(token.charAt(0))) {
                     double localResult;
                     try {
-                        if (operations.peek() == '√') {
-                            double num = Double.parseDouble(operands.pop());
-                            localResult = Math.sqrt(num);
-                            operations.pop();
-                        } else {
-                            double numTop = Double.parseDouble(operands.pop());
-                            double numBot = Double.parseDouble(operands.pop());
-                            char operation = operations.pop();
-                            localResult = calculator.doOperation(operation, numTop, numBot);
-                        }
+                        double numTop = Double.parseDouble(operands.pop());
+                        double numBot = Double.parseDouble(operands.pop());
+                        char operation = operations.pop();
+                        localResult = calculator.doOperation(operation, numTop, numBot);
                         operands.add(String.valueOf(localResult));
                     } catch (EmptyStackException ex) {
                         ex.printStackTrace();
@@ -131,14 +124,9 @@ public class CalculatorController {
                 while (true) {
                     localToken = operations.pop();
                     if (localToken == '(') break;
-                    if (localToken == '√') {
-                        double num = Double.parseDouble(operands.pop());
-                        localResultInsideBrackets = Math.sqrt(num);
-                    } else {
-                        double numTop = Double.parseDouble(operands.pop());
-                        double numBot = Double.parseDouble(operands.pop());
-                        localResultInsideBrackets = calculator.doOperation(localToken, numTop, numBot);
-                    }
+                    double numTop = Double.parseDouble(operands.pop());
+                    double numBot = Double.parseDouble(operands.pop());
+                    localResultInsideBrackets = calculator.doOperation(localToken, numTop, numBot);
                 }
                 operands.add(String.valueOf(localResultInsideBrackets));
                 i++;
@@ -147,16 +135,10 @@ public class CalculatorController {
         while (!operations.empty()) {
             double localResult;
             try {
-                if (operations.peek() == '√') {
-                    double num = Double.parseDouble(operands.pop());
-                    localResult = Math.sqrt(num);
-                    operations.pop();
-                } else {
-                    double numTop = Double.parseDouble(operands.pop());
-                    double numBot = Double.parseDouble(operands.pop());
-                    char operation = operations.pop();
-                    localResult = calculator.doOperation(operation, numTop, numBot);
-                }
+                double numTop = Double.parseDouble(operands.pop());
+                double numBot = Double.parseDouble(operands.pop());
+                char operation = operations.pop();
+                localResult = calculator.doOperation(operation, numTop, numBot);
                 operands.add(String.valueOf(localResult));
             } catch (EmptyStackException ex) {
                 ex.printStackTrace();
@@ -170,8 +152,7 @@ public class CalculatorController {
     public void calculate(String str) {
         List<String> list = parseTextValue(str);
         BigDecimal result = doMath(list);
-        calculator.setResult(result);
-        calculator.setTextValue(calculator.getResult() + "");
+        calculator.setTextValue(String.valueOf(result));
     }
 
     @GetMapping
