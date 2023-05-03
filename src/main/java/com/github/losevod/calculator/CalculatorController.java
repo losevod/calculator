@@ -5,6 +5,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 
 @Slf4j
@@ -18,7 +20,7 @@ public class CalculatorController {
         this.calculator = calculator;
     }
 
-    private List<String> parseTextValue (String str) {
+    private List<String> parseTextValue(String str) {
         List<String> result = new ArrayList<>();
         if (str.equals("")) return result;
         String token = "";
@@ -27,7 +29,7 @@ public class CalculatorController {
             token = str.charAt(0) == '-' ? "-" : "";
             i++;
         }
-        for (;i < str.length(); i++) {
+        for (; i < str.length(); i++) {
             char c = str.charAt(i);
             if (calculator.getOperations().containsKey(c)) {
                 if (result.size() > 0) {
@@ -43,7 +45,8 @@ public class CalculatorController {
                 token = String.valueOf(c);
                 result.add(token);
                 token = "";
-            } else {
+            }
+            else {
                 if (calculator.getOperands().contains(c)) {
                     token += c;
                     if (i < str.length() - 1) {
@@ -64,75 +67,109 @@ public class CalculatorController {
                     token = String.valueOf(c);
                     result.add(token);
                     token = "";
-                    continue;
                 }
-                if (c == ' ') continue;
-                // return new ArrayList<>();
             }
         }
         if (!token.equals("")) result.add(token);
         return result;
     }
 
-    private double doMath(List<String> list) {
-        if (list.size() < 3) return 0.0;
+    private BigDecimal doMath(List<String> list) {
+        if (list.size() < 3) return BigDecimal.valueOf(0.0);
         Stack<String> operands = new Stack<>();
         Stack<Character> operations = new Stack<>();
-        double result = 0.0;
-//        int i = 0;
-//        while(i != list.size()) {
-//            String token = list.get(i);
-//            if (token.length() > 1 || calculator.getOperands().contains(token.charAt(0))) {
-//                operands.add(token);
-//                i++;
-//            }
-//            if (calculator.getOperations().containsKey(token.charAt(0))) {
-//                if (operations.empty()) {
-//                    operations.add(token.charAt(0));
-//                    i++;
-//                }
-//                if (calculator.getOperations().get(operations.peek()) < calculator.getOperations().get(token.charAt(0)) || calculator.getOperations().get(operations.peek()) == '(' || calculator.getOperations().get(operations.peek()) == ')') {
-//                    operations.add(token.charAt(0));
-//                    i++;
-//                }
-//                if (calculator.getOperations().get(operations.peek()) >= calculator.getOperations().get(token.charAt(0))) {
-//                    double localResult = 0.0;
-//                    if (operations.peek() == '√') {
-//                        double num = Double.parseDouble(operands.pop());
-//                        localResult = Math.sqrt(num);
-//                    } else {
-//                        double numTop = Double.parseDouble(operands.pop());
-//                        double numBot = Double.parseDouble(operands.pop());
-//                        char operation = operations.pop();
-//                        if ( operation == '/') localResult = numBot / numTop;
-//                        if ( operation == '-') localResult = numBot - numTop;
-//                        if ( operation == '*') localResult = numTop * numBot;
-//                        if ( operation == '+') localResult = numBot + numBot;
-//                    }
-//                    operands.add(String.valueOf(localResult));
-//                }
-//                if (token.equals("(")) {
-//                    operations.add(token.charAt(0));
-//                    i++;
-//                }
-//                if (token.equals(")")) {
-//                    String localToken = "";
-//                    while(!localToken.equals("(")) {
-//                        //localToken = operations.pop()
-//                    }
-//                }
-//            }
-//        }
-        return result;
+        int i = 0;
+        while (i < list.size()) {
+            String token = list.get(i);
+            if (token.length() > 1 || calculator.getOperands().contains(token.charAt(0))) {
+                operands.add(token);
+                i++;
+                continue;
+            }
+            if (calculator.getOperations().containsKey(token.charAt(0))) {
+                if (operations.empty()) {
+                    operations.add(token.charAt(0));
+                    i++;
+                    continue;
+                }
+                if (operations.peek() == '(' || operations.peek() == ')' || calculator.getOperations().get(operations.peek()) < calculator.getOperations().get(token.charAt(0))) {
+                    operations.add(token.charAt(0));
+                    i++;
+                    continue;
+                }
+                if (calculator.getOperations().get(operations.peek()) >= calculator.getOperations().get(token.charAt(0))) {
+                    double localResult;
+                    try {
+                        if (operations.peek() == '√') {
+                            double num = Double.parseDouble(operands.pop());
+                            localResult = Math.sqrt(num);
+                            operations.pop();
+                        } else {
+                            double numTop = Double.parseDouble(operands.pop());
+                            double numBot = Double.parseDouble(operands.pop());
+                            char operation = operations.pop();
+                            localResult = calculator.doOperation(operation, numTop, numBot);
+                        }
+                        operands.add(String.valueOf(localResult));
+                    } catch (EmptyStackException ex) {
+                        ex.printStackTrace();
+                    }
+                    continue;
+                }
+            }
+            if (token.equals("(")) {
+                operations.add(token.charAt(0));
+                i++;
+                continue;
+            }
+            if (token.equals(")")) {
+                char localToken = 0;
+                double localResultInsideBrackets = 0.0;
+                while (true) {
+                    localToken = operations.pop();
+                    if (localToken == '(') break;
+                    if (localToken == '√') {
+                        double num = Double.parseDouble(operands.pop());
+                        localResultInsideBrackets = Math.sqrt(num);
+                    } else {
+                        double numTop = Double.parseDouble(operands.pop());
+                        double numBot = Double.parseDouble(operands.pop());
+                        localResultInsideBrackets = calculator.doOperation(localToken, numTop, numBot);
+                    }
+                }
+                operands.add(String.valueOf(localResultInsideBrackets));
+                i++;
+            }
+        }
+        while (!operations.empty()) {
+            double localResult;
+            try {
+                if (operations.peek() == '√') {
+                    double num = Double.parseDouble(operands.pop());
+                    localResult = Math.sqrt(num);
+                    operations.pop();
+                } else {
+                    double numTop = Double.parseDouble(operands.pop());
+                    double numBot = Double.parseDouble(operands.pop());
+                    char operation = operations.pop();
+                    localResult = calculator.doOperation(operation, numTop, numBot);
+                }
+                operands.add(String.valueOf(localResult));
+            } catch (EmptyStackException ex) {
+                log.info(operations.toString());
+                ex.printStackTrace();
+            }
+        }
+        return BigDecimal.valueOf(Double.parseDouble(operands.pop()));
     }
 
     public void calculate(String str) {
         List<String> list = parseTextValue(str);
-        log.info(list.toString());
-        double result = doMath(list);
+        BigDecimal result = doMath(list);
         calculator.setResult(result);
         calculator.setTextValue(calculator.getResult() + "");
     }
+
     @GetMapping
     public String getCalculator(Model model) {
         model.addAttribute("calculator", calculator);
@@ -144,7 +181,6 @@ public class CalculatorController {
         if (calculator == null) {
             return "calculator";
         }
-
 
 
         calculate(calculator.getTextValue());

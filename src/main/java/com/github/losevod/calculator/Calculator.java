@@ -2,6 +2,7 @@ package com.github.losevod.calculator;
 
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +28,7 @@ public class Calculator {
         operands.add('7');
         operands.add('8');
         operands.add('9');
+        operands.add('.');
     }
     private String textValue;
     public String getTextValue() {
@@ -35,12 +37,11 @@ public class Calculator {
     public void setTextValue(String textValue) {
         this.textValue = textValue;
     }
-
-    private double result;
-    public double getResult() {
+    private BigDecimal result;
+    public BigDecimal getResult() {
         return result;
     }
-    public void setResult(double result) {
+    public void setResult(BigDecimal result) {
         this.result = result;
     }
     private final Map<Character, Integer> operations;
@@ -50,5 +51,12 @@ public class Calculator {
     private final List<Character> operands;
     public List<Character> getOperands() {
         return operands;
+    }
+    public double doOperation(char operation, double num1, double num2) {
+        if ( operation == '/') return num2 / num1;
+        if ( operation == '-') return num2 - num1;
+        if ( operation == '*') return num1 * num2;
+        if ( operation == '+') return num1 + num2;
+        return 0.0;
     }
 }
