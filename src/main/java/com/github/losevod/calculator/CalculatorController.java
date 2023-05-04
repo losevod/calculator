@@ -19,7 +19,7 @@ public class CalculatorController {
         this.calculator = calculator;
     }
 
-    private List<String> parseTextValue(String str) {
+    public List<String> parseTextValue(String str) {
         List<String> result = new ArrayList<>();
         if (str.equals("")) return result;
         String token = "";
@@ -75,7 +75,7 @@ public class CalculatorController {
         return result;
     }
 
-    private BigDecimal doMath(List<String> list) {
+    public BigDecimal doMath(List<String> list) {
         if (list.size() < 2) return BigDecimal.valueOf(0.0);
         Stack<String> operands = new Stack<>();
         Stack<Character> operations = new Stack<>();
