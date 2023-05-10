@@ -47,8 +47,12 @@ public class Calculator {
     public List<Character> getOperands() {
         return operands;
     }
-    public double doOperation(char operation, double num1, double num2) {
-        if ( operation == '/') return num2 / num1;
+    public double doOperation(char operation, double num1, double num2) throws ArithmeticException {
+        if ( operation == '/') {
+            if (num2 == 0) {
+                throw new ArithmeticException();
+            } else return num2 / num1;
+        }
         if ( operation == '-') return num2 - num1;
         if ( operation == '*') return num1 * num2;
         if ( operation == '+') return num1 + num2;

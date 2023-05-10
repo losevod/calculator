@@ -168,7 +168,11 @@ public class CalculatorController {
         }
 
 
-        calculate(calculator.getTextValue());
+        try {
+            calculate(calculator.getTextValue());
+        } catch (ArithmeticException ex) {
+            return "redirect:/error";
+        };
 
         return "calculator";
     }
